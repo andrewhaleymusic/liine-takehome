@@ -82,4 +82,4 @@ Defaults are set for local container use and isolated test DB wiring.
 
 - No migration framework yet
 - No production hardening beyond what is useful for the take-home
-- No automatic ETL on app startup; the app should fail clearly if runtime data is missing once the real endpoint exists
+- No automatic ETL on app startup; the API creates the schema on startup, but an empty runtime DB simply returns no open restaurants until `make etl` loads data
