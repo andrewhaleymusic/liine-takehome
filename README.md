@@ -1,18 +1,19 @@
 # liine-takehome
 
-Container-first scaffold for the Liine restaurant-hours take-home.
+Container-first implementation for the Liine restaurant-hours take-home.
 
-This repo currently implements Prompt 1 and the storage-focused parts of Prompt 2:
+This repo currently implements:
 
 - project structure
 - Docker and Makefile workflow
 - app configuration
 - CLI entrypoints
-- a stub FastAPI app
-- basic smoke-test wiring
+- FastAPI API surface
 - Prompt 2 schema and stored-interval domain primitives
+- Prompt 3 ETL parsing, normalization, validation, and load flow
+- Prompt 4 availability query endpoint
 
-The availability endpoint is intentionally deferred to a later prompt.
+The app answers "which restaurants are open at this local datetime?" using ETL-loaded sqlite data.
 
 ## Reviewer Workflow
 
@@ -46,15 +47,23 @@ The runtime sqlite database is expected at `/data/restaurants.db` inside the con
 
 ## Current API Surface
 
-The scaffold currently exposes one endpoint:
+The app currently exposes:
 
 - `GET /health`
+- `GET /restaurants/open?datetime=...`
 
 Example:
 
 ```bash
 curl http://localhost:8000/health
 ```
+
+```bash
+curl "http://localhost:8000/restaurants/open?datetime=2026-05-04T11:30:00"
+```
+
+`/restaurants/open` expects a naive local datetime string. The documented format is ISO-like local datetime, for example `2026-05-04T11:30:00`.
+The response echoes that value as the string field `requested_datetime`.
 
 ## Configuration
 
@@ -73,5 +82,4 @@ Defaults are set for local container use and isolated test DB wiring.
 
 - No migration framework yet
 - No production hardening beyond what is useful for the take-home
-- No availability endpoint yet
 - No automatic ETL on app startup; the app should fail clearly if runtime data is missing once the real endpoint exists

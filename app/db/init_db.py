@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from sqlalchemy.engine import Engine
+from sqlalchemy.engine import Connection, Engine
 
 from app.db import models  # noqa: F401
 from app.db.base import Base
@@ -16,5 +16,5 @@ def ensure_sqlite_parent_dir(database_url: str) -> None:
         db_path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def create_tables(engine: Engine) -> None:
-    Base.metadata.create_all(bind=engine)
+def create_tables(bind: Engine | Connection) -> None:
+    Base.metadata.create_all(bind=bind)

@@ -169,6 +169,28 @@ The agreed Prompt 2 implementation scope is:
 ### Remaining Deferred
 
 - The API endpoint that queries restaurants by datetime
+- Prompt 4 will use FastAPI/Pydantic datetime validation for API input instead of `dateparser`.
+
+## Prompt 4: Availability API
+
+### Planning Outcome
+
+- Use FastAPI/Pydantic datetime validation instead of flexible natural-language parsing.
+- Keep the API contract narrow and deterministic.
+- Query directly against stored minute-of-week intervals.
+- Treat exact opening times as open and exact closing times as closed.
+
+### Implementation Outcome
+
+- Added DB-backed availability query logic.
+- Added `GET /restaurants/open?datetime=...`.
+- Reject timezone-aware datetimes and require naive local datetimes.
+- Return restaurant names in alphabetical order.
+- Added unit tests for query semantics and integration tests for API behavior.
+
+### Remaining Deferred
+
+- No additional API features beyond the assignment scope
 
 ## Why This Journal Exists
 
