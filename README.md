@@ -6,7 +6,7 @@ The app ingests `restaurants.csv` into SQLite with an ETL command and exposes `G
 
 ## Reviewer Workflow
 
-The host only needs Docker and `make`.
+The host only needs Docker, `curl`, and `make`.
 
 ```bash
 make build
@@ -53,6 +53,18 @@ curl "http://localhost:8000/restaurants/open?datetime=2026-05-04T11:30:00"
 ```
 
 `/restaurants/open` expects a naive local datetime string. The documented format is ISO-like local datetime, for example `2026-05-04T11:30:00`.
+Accepted examples include:
+
+- `2026-05-04T11:30:00`
+- `2026-05-04T11:30`
+- `2026-05-04 11:30:00`
+
+Rejected examples include:
+
+- `2026-05-04T11:30:00.123`
+- `2026-05-04T11:30:00Z`
+- `2026-05-04T11:30:00-04:00`
+
 The response echoes that value as the string field `requested_datetime`.
 Availability uses local wall-clock weekly intervals with `[start, end)` semantics, so arrival at the opening minute is open and arrival at the closing minute is closed.
 
