@@ -149,6 +149,27 @@ The agreed Prompt 2 implementation scope is:
 - `etl --truncate`
 - E2E ETL tests
 
+### Final Implementation Outcome
+
+- Added interval normalization from parsed schedule fragments into stored minute-of-week intervals.
+- Added overlap validation with row rejection when parsed data cannot be represented safely.
+- Added row-level sqlite writes with restaurant replacement semantics.
+- Added ETL orchestration that logs failures and continues processing later rows.
+- Added `etl --truncate` support for clean reloads.
+- Added unit tests for normalization behavior.
+- Added integration tests for:
+  - happy-path writes
+  - day-overlap rejection
+  - week-wrap overlap rejection
+  - successful week-wrap writes
+  - continuation after a bad row
+  - idempotent reruns
+  - truncate behavior
+
+### Remaining Deferred
+
+- The API endpoint that queries restaurants by datetime
+
 ## Why This Journal Exists
 
 - The code alone does not show how decisions were made.

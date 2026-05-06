@@ -36,7 +36,13 @@ def main() -> int:
         return 0
 
     if command == "etl":
-        return run_etl(settings)
+        extra_args = sys.argv[2:]
+        supported_args = {"--truncate"}
+        unknown_args = [arg for arg in extra_args if arg not in supported_args]
+        if unknown_args:
+            logger.error("Unknown etl arguments: %s", " ".join(unknown_args))
+            return 2
+        return run_etl(settings, truncate="--truncate" in extra_args)
 
     if command == "test":
         return _run_tool(["pytest", "-q"])

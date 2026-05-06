@@ -12,7 +12,7 @@ This repo currently implements Prompt 1 and the storage-focused parts of Prompt 
 - basic smoke-test wiring
 - Prompt 2 schema and stored-interval domain primitives
 
-The CSV parser, ETL load flow, and availability endpoint are intentionally deferred to later prompts.
+The availability endpoint is intentionally deferred to a later prompt.
 
 ## Reviewer Workflow
 
@@ -39,7 +39,8 @@ make shell
 - `make test` runs the pytest suite in the container
 - `make fmt` runs `isort` and `black` against the local working tree through the container
 - `make lint` runs `black --check`, `isort --check-only`, `mypy`, and `pytest`
-- `make etl` is wired up but intentionally returns a not-implemented error until Prompt 3
+- `make etl` parses `restaurants.csv` and loads the runtime sqlite database
+- the container entrypoint also supports `etl --truncate` for a clean reload before ingesting data
 
 The runtime sqlite database is expected at `/data/restaurants.db` inside the container and is backed by the host directory `.docker-data/`.
 
@@ -72,5 +73,5 @@ Defaults are set for local container use and isolated test DB wiring.
 
 - No migration framework yet
 - No production hardening beyond what is useful for the take-home
-- No CSV parsing or row-level ETL orchestration yet
+- No availability endpoint yet
 - No automatic ETL on app startup; the app should fail clearly if runtime data is missing once the real endpoint exists

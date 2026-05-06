@@ -66,8 +66,15 @@ class ParsedRestaurantSchedule:
     segments: tuple[ParsedScheduleSegment, ...]
 
 
-def parse_csv_rows(csv_path: Path) -> list[ParsedRestaurantSchedule]:
-    parsed_rows: list[ParsedRestaurantSchedule] = []
+@dataclass(frozen=True, slots=True)
+class RawRestaurantRow:
+    row_number: int
+    name: str
+    hours_text: str
+
+
+def read_csv_rows(csv_path: Path) -> list[RawRestaurantRow]:
+    rows: list[RawRestaurantRow] = []
     with csv_path.open(newline="", encoding="utf-8") as handle:
         reader = csv.DictReader(handle)
         for row_number, row in enumerate(reader, start=2):
@@ -77,8 +84,15 @@ def parse_csv_rows(csv_path: Path) -> list[ParsedRestaurantSchedule]:
                 raise ETLParseError(
                     f"CSV row {row_number} is missing required columns 'Restaurant Name' or 'Hours'"
                 )
-            parsed_rows.append(parse_schedule_row(row_number, name, hours_text))
-    return parsed_rows
+            rows.append(RawRestaurantRow(row_number=row_number, name=name, hours_text=hours_text))
+    return rows
+
+
+def parse_csv_rows(csv_path: Path) -> list[ParsedRestaurantSchedule]:
+    return [
+        parse_schedule_row(row.row_number, row.name, row.hours_text)
+        for row in read_csv_rows(csv_path)
+    ]
 
 
 def parse_schedule_row(row_number: int, name: str, hours_text: str) -> ParsedRestaurantSchedule:
