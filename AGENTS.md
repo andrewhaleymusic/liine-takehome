@@ -31,11 +31,13 @@ Use these targets instead of invoking host tools directly:
 - `make test`: run the pytest suite in Docker
 - `make lint`: run `black --check`, `isort --check-only`, `mypy`, and `pytest` in Docker
 - `make fmt`: run `isort` and `black` against the mounted working tree through Docker
-- `make etl`: load `restaurants.csv` into the runtime sqlite database
+- `make etl`: load the CSV configured in `.env` into the runtime sqlite database
+- `make etl-truncate`: clear and reload runtime data using the current `.env` settings
 - `make run`: start the API container
 - `make shell`: open a shell in the container
 
 Do not run bare host commands like `pytest`, `black`, `isort`, or `mypy` for verification unless there is a repo-specific reason the Makefile cannot be used. For review workflows, prefer `make lint` first, then `make test` only if you need a narrower rerun.
+The supported runtime configuration surface is the committed `.env` file plus these Make targets. Do not suggest arbitrary host `LIINE_*` environment variables unless the Makefile is also updated to pass them through.
 
 Recommended reviewer flow:
 
@@ -70,6 +72,6 @@ Recommended reviewer flow:
   - row-level failure logging
   - non-fatal bad-row handling
   - replace-per-restaurant writes
-  - optional `etl --truncate`
+  - explicit `make etl-truncate` / `liine etl --truncate`
 - Keep schema creation at application/command startup boundaries, not inside request handlers or low-level loader helpers.
 - Keep the API simple unless a later requirement forces complexity.

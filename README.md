@@ -28,6 +28,7 @@ Other useful commands:
 
 ```bash
 make test
+make etl-truncate
 make fmt
 make lint
 make shell
@@ -35,12 +36,12 @@ make shell
 
 ## Command Behavior
 
-- `make run` starts the FastAPI container on port `8000`
+- `make run` starts the FastAPI container on the port configured by `LIINE_API_PORT` in `.env` (`8000` by default)
 - `make test` runs the pytest suite in the container
 - `make fmt` runs `isort` and `black` against the local working tree through the container
 - `make lint` runs `black --check`, `isort --check-only`, `mypy`, and `pytest`
-- `make etl` parses `restaurants.csv` and loads the runtime sqlite database
-- the container entrypoint also supports `etl --truncate` for a clean reload before ingesting data
+- `make etl` parses the CSV pointed to by `LIINE_CSV_PATH` in `.env` and loads the runtime sqlite database
+- `make etl-truncate` does a clean reload before ingesting data
 
 The runtime sqlite database is expected at `/data/restaurants.db` inside the container and is backed by the host directory `.docker-data/`.
 
@@ -79,7 +80,7 @@ Availability uses local wall-clock weekly intervals with `[start, end)` semantic
 
 ## Data Flow
 
-- `make etl` reads `restaurants.csv`, parses schedule text, validates and normalizes intervals, and loads the runtime SQLite database
+- `make etl` reads the CSV configured in `.env`, parses schedule text, validates and normalizes intervals, and loads the runtime SQLite database
 - `make run` starts the API against that same mounted runtime database
 - API startup creates the schema if needed, but ETL is still required to populate restaurant data
 
@@ -91,7 +92,9 @@ Availability uses local wall-clock weekly intervals with `[start, end)` semantic
 
 ## Configuration
 
-Configuration is environment-driven through `LIINE_`-prefixed variables.
+The reviewer workflow uses the committed `.env` file as the supported runtime configuration surface.
+
+The default `.env` includes:
 
 - `LIINE_DATABASE_URL`
 - `LIINE_TEST_DATABASE_URL`
@@ -100,7 +103,20 @@ Configuration is environment-driven through `LIINE_`-prefixed variables.
 - `LIINE_API_PORT`
 - `LIINE_LOG_LEVEL`
 
-Defaults are set for local container use and isolated test DB wiring.
+If you want to change the runtime DB path, API port, log level, or input CSV, edit `.env` and then rerun the relevant `make` target.
+
+Examples:
+
+```bash
+# point ETL at a different source file, then reload
+vim .env
+make etl
+
+# clear runtime data and reload using the current .env settings
+make etl-truncate
+```
+
+`LIINE_CSV_PATH` in `.env` is a host path used by the Makefile for the ETL bind mount. The Makefile rewrites it to an in-container path before running `liine etl`.
 
 ## Intentional Tradeoffs
 

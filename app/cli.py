@@ -1,6 +1,6 @@
+import argparse
 import logging
 import subprocess
-import sys
 
 import uvicorn
 
@@ -16,15 +16,33 @@ def _run_tool(args: list[str]) -> int:
     return completed.returncode
 
 
+def build_parser() -> argparse.ArgumentParser:
+    parser = argparse.ArgumentParser(prog="liine")
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    subparsers.add_parser("serve")
+
+    etl_parser = subparsers.add_parser("etl")
+    etl_parser.add_argument(
+        "--truncate",
+        action="store_true",
+        help="Delete existing runtime data before loading the CSV.",
+    )
+
+    subparsers.add_parser("test")
+    subparsers.add_parser("fmt")
+    subparsers.add_parser("lint")
+    return parser
+
+
 def main() -> int:
+    parser = build_parser()
+    args = parser.parse_args()
+
     settings = get_settings()
     configure_logging(settings.log_level)
 
-    if len(sys.argv) < 2:
-        logger.error("Expected a subcommand: serve, etl, test, fmt, or lint.")
-        return 2
-
-    command = sys.argv[1]
+    command = args.command
 
     if command == "serve":
         uvicorn.run(
@@ -36,13 +54,7 @@ def main() -> int:
         return 0
 
     if command == "etl":
-        extra_args = sys.argv[2:]
-        supported_args = {"--truncate"}
-        unknown_args = [arg for arg in extra_args if arg not in supported_args]
-        if unknown_args:
-            logger.error("Unknown etl arguments: %s", " ".join(unknown_args))
-            return 2
-        return run_etl(settings, truncate="--truncate" in extra_args)
+        return run_etl(settings, truncate=args.truncate)
 
     if command == "test":
         return _run_tool(["pytest", "-q"])
@@ -71,7 +83,7 @@ def main() -> int:
                 return return_code
         return 0
 
-    logger.error("Unknown subcommand: %s", command)
+    parser.error(f"Unknown subcommand: {command}")
     return 2
 
 
