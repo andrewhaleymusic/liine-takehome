@@ -2,7 +2,7 @@
 
 Container-first scaffold for the Liine restaurant-hours take-home.
 
-This repo currently implements Prompt 1 only:
+This repo currently implements Prompt 1 and the storage-focused parts of Prompt 2:
 
 - project structure
 - Docker and Makefile workflow
@@ -10,8 +10,9 @@ This repo currently implements Prompt 1 only:
 - CLI entrypoints
 - a stub FastAPI app
 - basic smoke-test wiring
+- Prompt 2 schema and stored-interval domain primitives
 
-The schedule schema, ETL implementation, and availability endpoint are intentionally deferred to later prompts.
+The CSV parser, ETL load flow, and availability endpoint are intentionally deferred to later prompts.
 
 ## Reviewer Workflow
 
@@ -71,5 +72,5 @@ Defaults are set for local container use and isolated test DB wiring.
 
 - No migration framework yet
 - No production hardening beyond what is useful for the take-home
-- No schedule schema yet, to avoid front-running data-model decisions
+- No CSV parsing or row-level ETL orchestration yet
 - No automatic ETL on app startup; the app should fail clearly if runtime data is missing once the real endpoint exists

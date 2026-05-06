@@ -1,5 +1,10 @@
 from pathlib import Path
 
+from sqlalchemy.engine import Engine
+
+from app.db import models  # noqa: F401
+from app.db.base import Base
+
 
 def ensure_sqlite_parent_dir(database_url: str) -> None:
     prefix = "sqlite:///"
@@ -9,3 +14,7 @@ def ensure_sqlite_parent_dir(database_url: str) -> None:
     db_path = Path(database_url.removeprefix(prefix))
     if db_path.parent:
         db_path.parent.mkdir(parents=True, exist_ok=True)
+
+
+def create_tables(engine: Engine) -> None:
+    Base.metadata.create_all(bind=engine)
