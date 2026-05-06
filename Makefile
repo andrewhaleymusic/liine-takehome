@@ -19,7 +19,7 @@ etl: build
 
 run: build
 	mkdir -p $(DATA_DIR)
-	docker run --rm -p $(PORT):8000 -v $(DATA_DIR):/data $(IMAGE) serve
+	docker run --rm -p 127.0.0.1:$(PORT):8000 -v $(DATA_DIR):/data $(IMAGE) serve
 
 shell: build
 	mkdir -p $(DATA_DIR)

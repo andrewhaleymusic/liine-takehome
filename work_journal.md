@@ -197,3 +197,60 @@ The agreed Prompt 2 implementation scope is:
 - The code alone does not show how decisions were made.
 - The staged plan, review feedback, and scope corrections are part of the deliverable quality.
 - For this take-home, demonstrating disciplined AI-assisted workflow is useful evidence of engineering judgment.
+
+## Exploratory Testing Pass
+
+### Workflow
+
+- Exercised the repo using the documented reviewer flow:
+  - `make build`
+  - `make etl`
+  - `make run`
+- Verified the default CSV load completed successfully with all `40` rows loaded and `0` failures.
+- Probed the live API against the default dataset for:
+  - documented happy paths
+  - day-wrap and week-wrap cases
+  - omitted-day cases
+  - malformed and unexpected query inputs
+- Exercised ETL with alternate CSV files to verify:
+  - `etl --truncate`
+  - good replacement loads
+  - mixed good/bad loads
+  - preflight-failing loads
+  - all-bad row sets
+- Restored the default dataset after exploratory tests so the runtime DB was left in a sane state.
+
+### Notes About The Environment
+
+- Docker port publishing was correct for `make run`.
+- In this sandbox, direct host `localhost:8000` access was blocked even though Docker showed the port was published correctly.
+- To continue testing the live API, requests were sent from throwaway Docker containers on host networking.
+
+### What Worked As Expected
+
+- `README.md` and `AGENTS.md` were aligned closely enough to follow without surprise.
+- Day-wrap and week-wrap behavior matched expectations:
+  - `Bonchon` was open before its closing minute and closed exactly at its closing minute.
+  - `42nd Street Oyster Bar` was returned correctly across the Sunday-to-Monday week boundary.
+- Omitted-day behavior worked:
+  - `Centro` was not returned on Tuesday.
+  - `Top of the Hill` was not returned on Sunday evening.
+- Mixed ETL input behaved well:
+  - valid rows loaded
+  - invalid rows logged and skipped
+  - the API reflected only the valid rows after load
+- The preflight safety fix worked:
+  - a bad-header CSV with `--truncate` did not wipe previously loaded good data
+
+### Surprising Findings
+
+- `etl --truncate` can still leave the runtime DB empty if the CSV passes preflight but every row fails later parsing or validation.
+- Duplicate `datetime` query parameters are accepted, and the last value wins.
+- API error shapes are slightly inconsistent:
+  - missing `datetime` returns FastAPI's default 422 structure
+  - malformed `datetime` returns the app's custom string `detail`
+- The API accepts a little more than the README states:
+  - `2026-05-04 11:30:00` works
+  - `2026-05-04T11:30` works
+  - fractional seconds are rejected
+  - timezone-bearing values are rejected
