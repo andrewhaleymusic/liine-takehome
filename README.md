@@ -4,6 +4,15 @@ Container-first implementation for the Liine restaurant-hours take-home.
 
 The app ingests `restaurants.csv` into SQLite with an ETL command and exposes `GET /restaurants/open?datetime=...` to answer which restaurants are open at a given local datetime.
 
+## AI Workflow Note
+
+This repo intentionally includes `prompt.md` and `work_journal.md`.
+
+- `prompt.md` shows how the take-home was broken into small, scoped planning and implementation steps instead of being one-shotted.
+- `work_journal.md` records the decisions, tradeoffs, review feedback, and exploratory testing notes that came out of that process.
+
+They are included to be transparent about an AI-assisted local development workflow and to show how the work was scoped, validated, and refined over time.
+
 ## Reviewer Workflow
 
 The host only needs Docker, `curl`, and `make`.
