@@ -128,8 +128,12 @@ The agreed Prompt 2 implementation scope is:
 - Keep parser errors distinct from later validation/write errors.
 - Prefer straightforward string processing over regex-heavy parsing.
 
-### Partial Implementation Outcome
+### Implementation Outcome
 
+- Built the ETL in stages rather than all at once:
+  - parser shapes and raw string parsing first
+  - normalization and overlap validation second
+  - row-level DB writes and orchestration last
 - Replaced the parser stub with structured parsed ETL types.
 - Implemented parsing for:
   - schedule segments separated by `/`
@@ -139,18 +143,6 @@ The agreed Prompt 2 implementation scope is:
   - time ranges using either ` - ` or ` to `
   - times with or without minutes, including noon and midnight
 - Added parser unit tests for happy paths and malformed inputs.
-
-### Explicitly Deferred
-
-- Minute-of-week normalization
-- Overlap validation
-- Row-level DB writes
-- ETL service orchestration
-- `etl --truncate`
-- E2E ETL tests
-
-### Final Implementation Outcome
-
 - Added interval normalization from parsed schedule fragments into stored minute-of-week intervals.
 - Added overlap validation with row rejection when parsed data cannot be represented safely.
 - Added row-level sqlite writes with restaurant replacement semantics.
@@ -185,18 +177,10 @@ The agreed Prompt 2 implementation scope is:
 - Added DB-backed availability query logic.
 - Added `GET /restaurants/open?datetime=...`.
 - Reject timezone-aware datetimes and require naive local datetimes.
+- Accept ISO-like naive local datetimes with either `T` or space separators, and with seconds optional.
+- Reject fractional seconds and timezone-bearing values.
 - Return restaurant names in alphabetical order.
 - Added unit tests for query semantics and integration tests for API behavior.
-
-### Remaining Deferred
-
-- No additional API features beyond the assignment scope
-
-## Why This Journal Exists
-
-- The code alone does not show how decisions were made.
-- The staged plan, review feedback, and scope corrections are part of the deliverable quality.
-- For this take-home, demonstrating disciplined AI-assisted workflow is useful evidence of engineering judgment.
 
 ## Exploratory Testing Pass
 
@@ -249,7 +233,7 @@ The agreed Prompt 2 implementation scope is:
 - API error shapes are slightly inconsistent:
   - missing `datetime` returns FastAPI's default 422 structure
   - malformed `datetime` returns the app's custom string `detail`
-- The API accepts a little more than the README states:
+- The API accepts multiple ISO-like naive local datetime forms:
   - `2026-05-04 11:30:00` works
   - `2026-05-04T11:30` works
   - fractional seconds are rejected
