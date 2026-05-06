@@ -119,6 +119,36 @@ The agreed Prompt 2 implementation scope is:
 - Interval normalization from raw text
 - Any API query behavior beyond the existing healthcheck
 
+## Prompt 3: ETL Parsing And Load
+
+### Planning Outcome
+
+- Keep Prompt 3 staged as well.
+- Implement parser shapes and raw string parsing before touching normalization or DB writes.
+- Keep parser errors distinct from later validation/write errors.
+- Prefer straightforward string processing over regex-heavy parsing.
+
+### Partial Implementation Outcome
+
+- Replaced the parser stub with structured parsed ETL types.
+- Implemented parsing for:
+  - schedule segments separated by `/`
+  - day groups separated by `,`
+  - day ranges like `Mon-Fri`
+  - full and abbreviated weekday names
+  - time ranges using either ` - ` or ` to `
+  - times with or without minutes, including noon and midnight
+- Added parser unit tests for happy paths and malformed inputs.
+
+### Explicitly Deferred
+
+- Minute-of-week normalization
+- Overlap validation
+- Row-level DB writes
+- ETL service orchestration
+- `etl --truncate`
+- E2E ETL tests
+
 ## Why This Journal Exists
 
 - The code alone does not show how decisions were made.
